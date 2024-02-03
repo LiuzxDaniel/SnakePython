@@ -122,7 +122,6 @@ def login_window(change=False, again=False):
     #全局变量
     help_text = font.render('', True, (255, 0, 0))
     blit_help_time = 120
-    username = ''
     password = ''
     mode = 'name'
     display_time = 30
@@ -133,6 +132,7 @@ def login_window(change=False, again=False):
 
     if change:
         real_username = username
+        username = ''
 
         Login_Text = font.render('确定', True, (0, 0, 0))
         Sign_Up_Text = font.render('取消', True, (0, 0, 0))
@@ -142,6 +142,8 @@ def login_window(change=False, again=False):
         Login_Text_x = (pix-Login_Text.get_width())/2-pix/13
 
     else:
+        username = ''
+
         Name_Text = font.render('用户名：', True, (0, 0, 0))
         Word_Text = font.render('密码：', True, (0, 0, 0))
         Login_Text_x = (pix-Login_Text.get_width())/2-pix/13
@@ -183,12 +185,6 @@ def login_window(change=False, again=False):
                         and pygame.mouse.get_pos()[1] > Login_Text_y and pygame.mouse.get_pos()[1] < Login_Text_y+Login_Text.get_height()):
                         login(change) # change情况下代表确定
                         if blit_help_time != 120:
-                            if change:
-                                user_password[real_username] = hashlib.pbkdf2_hmac('sha512', str.encode(password), 
-                                                                                   hashlib.pbkdf2_hmac('sha512', str.encode(password), 
-                                                                                                       str.encode(password), 5), 20)
-                                with open('assets/user_password.py', mode='w', encoding='utf-8') as f:
-                                    f.write('user_password = '+str(user_password))
                             shut_down = True
                             break
 
@@ -200,11 +196,6 @@ def login_window(change=False, again=False):
                             return 0
                         sign_up()
                         if blit_help_time != 120:
-                            user_password[username] = hashlib.pbkdf2_hmac('sha512', str.encode(password), 
-                                                                          hashlib.pbkdf2_hmac('sha512', str.encode(password), 
-                                                                                              str.encode(password), 5), 20)
-                            with open('assets/user_password.py', mode='w', encoding='utf-8') as f:
-                                    f.write('user_password = '+str(user_password))
                             shut_down = True
                             break
                     check = False
@@ -223,12 +214,6 @@ def login_window(change=False, again=False):
                             if password:
                                 login(change)
                                 if blit_help_time != 120:
-                                    if change:
-                                        user_password[username] = hashlib.pbkdf2_hmac('sha512', str.encode(password), 
-                                                                                      hashlib.pbkdf2_hmac('sha512', str.encode(password), 
-                                                                                                          str.encode(password), 5), 20)
-                                        with open('assets/user_password.py', mode='w', encoding='utf-8') as f:
-                                            f.write('user_password = '+str(user_password))
                                     shut_down = True
                                     break
                                 
@@ -277,12 +262,6 @@ def login_window(change=False, again=False):
                             if username:
                                 login(change)
                                 if blit_help_time != 120:
-                                    if change:
-                                        user_password[username] = hashlib.pbkdf2_hmac('sha512', str.encode(password), 
-                                                                                      hashlib.pbkdf2_hmac('sha512', str.encode(password), 
-                                                                                                          str.encode(password), 5), 20)
-                                        with open('assets/user_password.py', mode='w', encoding='utf-8') as f:
-                                            f.write('user_password = '+str(user_password))
                                     shut_down = True
                                     break
                                 
@@ -332,6 +311,11 @@ def login_window(change=False, again=False):
     
     if change:
         username = real_username
+        user_password[username] = hashlib.pbkdf2_hmac('sha512', str.encode(password), 
+                                                      hashlib.pbkdf2_hmac('sha512', str.encode(password), 
+                                                                          str.encode(password), 5), 20)
+        with open('assets/user_password.py', mode='w', encoding='utf-8') as f:
+            f.write('user_password = '+str(user_password))
 
 class SNAKE:
     def __init__(self):
