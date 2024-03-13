@@ -11,7 +11,6 @@ def source_path(relative_path):
     return os.path.join (base_path, relative_path)
 
 cd = source_path('')
-print(cd)
 os.chdir(cd)
 
 user_password = assets.user_password.user_password
@@ -47,10 +46,7 @@ def login_window_init(change=False):
     help_text_y = pix/2-pix*5/39-help_text.get_height()
 
     if display_time <= 20:
-        if change:
-            prov_name_text = font.render('*'*len(username)+' ', True, (0, 0, 0))
-        else:
-            prov_name_text = font.render(username+' ', True, (0, 0, 0))
+        prov_name_text = font.render('*'*len(username)+' ', True, (0, 0, 0)) if change else font.render(username+' ', True, (0, 0, 0))
         prov_word_text = font.render('*'*len(password)+' ', True, (0, 0, 0))
         if mode == 'name':
             cursor_text_x = Rect_x+prov_name_text.get_width()
@@ -77,10 +73,7 @@ def login_window_init(change=False):
 def login(change=False):
     global help_text, blit_help_time
     if username == '' or password == '':
-        if change:
-            help_text = font.render('新密码或再次输入的密码为空！', True, (255, 0, 0))
-        else:
-            help_text = font.render('用户名或密码为空！', True, (255, 0, 0))
+        help_text = font.render('新密码或再次输入的密码为空！' if change else '用户名或密码为空！', True, (255, 0, 0))
         blit_help_time = 120
 
     elif change:
@@ -218,7 +211,6 @@ def login_window(change=False, again=False):
                                     break
                                 
                             else:
-                                pass_word_text = font.render('', True, (0, 0, 0))
                                 mode = 'word'
                                 
                         elif event.key == pygame.K_BACKSPACE:
@@ -266,7 +258,6 @@ def login_window(change=False, again=False):
                                     break
                                 
                             else:
-                                user_name_text = font.render('', True, (0, 0, 0))
                                 mode = 'name'
 
                         elif event.key == pygame.K_BACKSPACE:
@@ -311,11 +302,13 @@ def login_window(change=False, again=False):
     
     if change:
         username = real_username
-        user_password[username] = hashlib.pbkdf2_hmac('sha512', str.encode(password), 
-                                                      hashlib.pbkdf2_hmac('sha512', str.encode(password), 
-                                                                          str.encode(password), 5), 20)
-        with open('assets/user_password.py', mode='w', encoding='utf-8') as f:
-            f.write('user_password = '+str(user_password))
+
+    user_password[username] = hashlib.pbkdf2_hmac('sha512', str.encode(password), 
+                                                  hashlib.pbkdf2_hmac('sha512', str.encode(password), 
+                                                                      str.encode(password), 5), 20)
+        
+    with open('assets/user_password.py', mode='w', encoding='utf-8') as f:
+        f.write('user_password = '+str(user_password))
 
 class SNAKE:
     def __init__(self):
@@ -591,8 +584,8 @@ class MAIN:
 
         if self.score > max_score[self.mode]:
             max_score[self.mode] = self.score
-        if max_score[self.mode] != 0:
-            update_ranking(self.mode, username, max_score[self.mode])
+            if max_score[self.mode] != 0:
+                update_ranking(self.mode, username, max_score[self.mode])
 
         self.over_music.play()
         self.reset()
@@ -998,6 +991,8 @@ class GAME_WINDOW:
                     self.click = True
     
     def draw_start_window(self):
+        global max_score
+        
         self.choose_index = 0
         self.choose_text_lis = []
 
@@ -1341,12 +1336,11 @@ class GAME_WINDOW:
                                         if again != 0:
                                             bgm.stop()
                                             login_window(change=True)
-                                        with open('assets/user_password.py', mode='w', encoding='utf-8') as f:
-                                            f.write('user_password = '+str(user_password))
                                     elif self.choose_index == 2: # change user
                                         bgm.stop()
                                         login_window()
                                         self.title_text = chinese_title_font.render(username, True, (0, 0, 0))
+                                        max_score = dict(zip(mode_lis, [0 for i in range(len(mode_lis))]))
                                     else: # cancel
                                         self.choose_index = 5
                                         break
