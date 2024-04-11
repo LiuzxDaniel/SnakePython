@@ -34,7 +34,7 @@ def update_ranking(mode, player_name, score):
 
 def login_window_init(change=False):
     global Cursor_Text, display_time
-    screen.blit(background, (0, 0))
+    draw_grass()
 
     screen.blit(Login_Text, (Login_Text_x, Login_Text_y))
     screen.blit(Sign_Up_Text, (Sign_Up_Text_x, Sign_Up_Text_y))
@@ -155,9 +155,11 @@ def login_window(change=False, again=False):
     Sign_Up_Text_x = (pix-Sign_Up_Text.get_width())/2+pix/13
     Sign_Up_Text_y = (pix-Sign_Up_Text.get_height())/2+pix/13
     Rect_x = pix/2-pix*19/76+Name_Text.get_width()
+
+    color = (215, 215, 215)
     
     #主循环
-    bgm.play(-1)
+    pygame.mixer.music.play(-1)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -276,15 +278,15 @@ def login_window(change=False, again=False):
 
         if not username:
             if change:
-                user_name_text = font.render('新密码 password', True, (176, 176, 176))
+                user_name_text = font.render('新密码 password', True, color)
             else:
-                user_name_text = font.render('用户名 username', True, (176, 176, 176))
+                user_name_text = font.render('用户名 username', True, color)
 
         if not password:
             if change:
-                pass_word_text = font.render('新密码 password', True, (176, 176, 176))
+                pass_word_text = font.render('新密码 password', True, color)
             else:
-                pass_word_text = font.render('密码 password', True, (176, 176, 176))
+                pass_word_text = font.render('密码 password', True, color)
 
         if shut_down:
             break
@@ -309,6 +311,22 @@ def login_window(change=False, again=False):
         
     with open('assets/user_password.py', mode='w', encoding='utf-8') as f:
         f.write('user_password = '+str(user_password))
+
+def draw_grass():
+    screen.fill((167, 209, 61))
+    grass_color = (157, 199, 51)
+    for row in range(number):
+        if row % 2:
+            for col in range(number):
+                if col % 2 != 0:
+                    grass_rect = pygame.Rect(col*size, row*size, size, size)
+                    pygame.draw.rect(screen, grass_color, grass_rect)
+
+        else:
+            for col in range(number):
+                if col % 2 == 0:
+                    grass_rect = pygame.Rect(col*size, row*size, size, size)
+                    pygame.draw.rect(screen, grass_color, grass_rect)
 
 class SNAKE:
     def __init__(self):
@@ -496,7 +514,6 @@ class MAIN:
         self.divisor = divisor
         self.mode = mode
 
-        self.choose_rgb = (22, 167, 43)
         self.snake = SNAKE()
         self.fruit = FRUIT(self.snake.body, reset_fruit=self.reset_fruit, teach=self.teach)
 
@@ -507,7 +524,7 @@ class MAIN:
             fruit_place_lis = [self.fruit.pos, self.second_fruit.pos, self.third_fruit.pos]
 
         self.over_music = pygame.mixer.Sound('assets/sound/贪知蛇死亡.wav')
-        bgm.play(-1)
+        pygame.mixer.music.play(-1)
 
         self.move_snake = 1
         self.die = False
@@ -542,8 +559,7 @@ class MAIN:
             self.check_die()
             
     def draw_elements(self):
-        screen.fill((167, 209, 61))
-        self.draw_grass()
+        draw_grass()
         self.snake.draw_snake()
         self.draw_score()
         self.fruit.draw_fruit()
@@ -608,7 +624,7 @@ class MAIN:
         
     def reset(self):
         global game_window
-        bgm.stop()
+        pygame.mixer.music.stop()
         self.score_text = chinese_title_font.render(str(self.score)+' 分', True, (0, 0, 0))
         self.shut_down = False
         self.round = False
@@ -643,13 +659,13 @@ class MAIN:
 
                         if self.choose_index == 0:
                             self.draw_elements()
-                            bgm.play(-1)
+                            pygame.mixer.music.play(-1)
                             self.snake.reset()
                             self.shut_down = True
                             break
 
                         else:
-                            bgm.play(-1)
+                            pygame.mixer.music.play(-1)
                             game_window.draw_start_window()
                             self.shut_down = True
 
@@ -679,8 +695,8 @@ class MAIN:
                                         (pix-self.choose_text2.get_height())/3+pix*3/13))
                 
     def choose_exit_text(self):
-        self.choose_text1 = chinese_font.render('再来一轮', True, self.choose_rgb if self.choose_index == 0 else (0, 0, 0))
-        self.choose_text2 = chinese_font.render('返回菜单', True, self.choose_rgb if self.choose_index == 1 else (0, 0, 0))
+        self.choose_text1 = chinese_font.render('再来一轮', True, choose_color if self.choose_index == 0 else (0, 0, 0))
+        self.choose_text2 = chinese_font.render('返回菜单', True, choose_color if self.choose_index == 1 else (0, 0, 0))
             
     def reset_wrong_fruit(self):
         self.second_fruit.reset_fruit_place()
@@ -819,25 +835,9 @@ class MAIN:
         apple_rect = apple.get_rect(midright=(score_rect.left, score_rect.centery))
         screen.blit(apple, apple_rect)
         screen.blit(score_surface, score_rect)
-        
-    def draw_grass(self):
-        grass_color = (157, 199, 51)
-        for row in range(number):
-            if row % 2:
-                for col in range(number):
-                    if col % 2 != 0:
-                        grass_rect = pygame.Rect(col*size, row*size, size, size)
-                        pygame.draw.rect(screen, grass_color, grass_rect)
-
-            else:
-                for col in range(number):
-                    if col % 2 == 0:
-                        grass_rect = pygame.Rect(col*size, row*size, size, size)
-                        pygame.draw.rect(screen, grass_color, grass_rect)
 
 class GAME_WINDOW:
     def __init__(self):
-        self.choose_rgb = (22, 167, 43)
         self.all_clear = True
         self.zero_clear()
         self.draw_start_window()
@@ -858,7 +858,7 @@ class GAME_WINDOW:
             self.mode = None
 
     def draw_init_window(self):
-        screen.blit(background, (0, 0))
+        draw_grass()
         self.all_clear = True
         self.zero_clear()
         self.title_text = chinese_title_font.render('贪知蛇', True, (0, 0, 0))
@@ -926,41 +926,41 @@ class GAME_WINDOW:
         self.choose_num = 6
         lis = ['数学运算', '百科知识', '综合知识', '轻松一刻', '排行榜', '个人中心', '退出游戏']
         for i in range(self.choose_num+1):
-            exec(f'self.mode_text{i+1} = chinese_font.render("{lis[i]}", True, self.choose_rgb if self.choose_index == {i} else (0, 0, 0))')
+            exec(f'self.mode_text{i+1} = chinese_font.render("{lis[i]}", True, choose_color if self.choose_index == {i} else (0, 0, 0))')
 
     def choose_math_text(self):
         self.choose_num = 3
         lis = ['加减运算', '乘除运算', '加减乘除', '返回']
         for i in range(self.choose_num+1):
-            exec(f'self.mode_text{i+1} = chinese_font.render("{lis[i]}", True, self.choose_rgb if self.choose_index == {i} else (0, 0, 0))')
+            exec(f'self.mode_text{i+1} = chinese_font.render("{lis[i]}", True, choose_color if self.choose_index == {i} else (0, 0, 0))')
 
     def choose_snake_text(self):
         self.choose_num = 3
         lis = ['经典模式', '加速模式', '限时挑战', '返回']
         for i in range(self.choose_num+1):
-            exec(f'self.mode_text{i+1} = chinese_font.render("{lis[i]}", True, self.choose_rgb if self.choose_index == {i} else (0, 0, 0))')
+            exec(f'self.mode_text{i+1} = chinese_font.render("{lis[i]}", True, choose_color if self.choose_index == {i} else (0, 0, 0))')
             
     def choose_decimal_mode(self):
         self.choose_num = 2
-        self.mode_text1 = chinese_font.render('整数模式', True, self.choose_rgb if self.choose_index == 0 else (0, 0, 0))
-        self.mode_text2 = chinese_font.render('小数模式', True, self.choose_rgb if self.choose_index == 1 else (0, 0, 0))
-        self.mode_text3 = chinese_font.render('返回', True, self.choose_rgb if self.choose_index == 2 else (0, 0, 0))
+        self.mode_text1 = chinese_font.render('整数模式', True, choose_color if self.choose_index == 0 else (0, 0, 0))
+        self.mode_text2 = chinese_font.render('小数模式', True, choose_color if self.choose_index == 1 else (0, 0, 0))
+        self.mode_text3 = chinese_font.render('返回', True, choose_color if self.choose_index == 2 else (0, 0, 0))
 
     def choose_up_down_page(self):
         self.choose_num = 2
-        self.choose_text1 = font.render('返回', True, self.choose_rgb if self.choose_index == 0 else (0, 0, 0))
-        self.choose_text2 = font.render('下一模式', True, self.choose_rgb if self.choose_index == 1 else (0, 0, 0))
-        self.choose_text3 = font.render('上一模式', True, self.choose_rgb if self.choose_index == 2 else (0, 0, 0))
+        self.choose_text1 = font.render('返回', True, choose_color if self.choose_index == 0 else (0, 0, 0))
+        self.choose_text2 = font.render('下一模式', True, choose_color if self.choose_index == 1 else (0, 0, 0))
+        self.choose_text3 = font.render('上一模式', True, choose_color if self.choose_index == 2 else (0, 0, 0))
 
     def choose_personal_text(self):
         self.choose_num = 3
         lis = ['个人排行', '更改密码', '切换用户', '返回']
         for i in range(self.choose_num+1):
-            exec(f'self.mode_text{i+1} = chinese_font.render("{lis[i]}", True, self.choose_rgb if self.choose_index == {i} else (0, 0, 0))')
+            exec(f'self.mode_text{i+1} = chinese_font.render("{lis[i]}", True, choose_color if self.choose_index == {i} else (0, 0, 0))')
 
     def choose_cancel(self):
         self.choose_num = 0
-        self.choose_text1 = font.render('返回', True, self.choose_rgb if self.choose_index == 0 else (0, 0, 0))
+        self.choose_text1 = font.render('返回', True, choose_color if self.choose_index == 0 else (0, 0, 0))
 
     def traverse_choose_index(self):
         if self.event.key == pygame.K_w or self.event.key == pygame.K_UP or self.event.key == pygame.K_a or self.event.key == pygame.K_LEFT:
@@ -1282,7 +1282,7 @@ class GAME_WINDOW:
                             self.title_text = chinese_title_font.render(username, True, (0, 0, 0))
 
                             while True:
-                                screen.blit(background, (0, 0))
+                                draw_grass()
                                 self.choose_personal_text()
                                 self.blit_all_text()
                                 self.traverse_choose()
@@ -1340,14 +1340,14 @@ class GAME_WINDOW:
                                             pygame.display.update()
 
                                     elif self.choose_index == 1: # change password
-                                        bgm.stop()
+                                        pygame.mixer.music.stop()
                                         again = login_window(again=True)
                                         if again != 0:
-                                            bgm.stop()
+                                            pygame.mixer.music.stop()
                                             login_window(change=True)
 
                                     elif self.choose_index == 2: # change user
-                                        bgm.stop()
+                                        pygame.mixer.music.stop()
                                         login_window()
                                         self.title_text = chinese_title_font.render(username, True, (0, 0, 0))
                                         max_score = dict(zip(mode_lis, [0 for i in range(len(mode_lis))]))
@@ -1366,7 +1366,7 @@ class GAME_WINDOW:
             elif self.shut_down:
                 break
 
-        bgm.stop()
+        pygame.mixer.music.stop()
         self.main_game = MAIN(fast=self.fast, reset_fruit=self.reset_fruit, 
                               teach=self.teach, only_add_sub=self.only_add_sub, 
                               only_mul_div=self.only_mul_div, wiki=self.wiki, 
@@ -1379,6 +1379,8 @@ class GAME_WINDOW:
 
             for i in range(len(assets.ranking.score_dic[f'{self.mode}_score_lis'])):
                 assets.ranking.player_dic[f'{self.mode}_player_lis'][i] = dic[assets.ranking.score_dic[f'{self.mode}_score_lis'][i]]
+
+
 
 pygame.mixer.init()
 pygame.init()
@@ -1398,9 +1400,10 @@ clock = pygame.time.Clock()
 
 apple = pygame.image.load('assets/image/apple20_20.png').convert_alpha()
 apple = pygame.transform.smoothscale(apple, (size, size))
-background = pygame.image.load('assets/image/background.jpg').convert_alpha()
-background = pygame.transform.smoothscale(background, (pix, pix))
-bgm = pygame.mixer.Sound('assets/sound/贪知蛇背景音乐.mp3')
+draw_grass()
+
+pygame.mixer.music.load('assets/sound/贪知蛇背景音乐.mp3')
+pygame.mixer.music.set_volume(0.5)
 
 font_size = int(round(pix / 19.5, 0))
 english_font = pygame.font.Font('assets/font/Brush Script.ttf', font_size)
@@ -1438,47 +1441,60 @@ Rect_x = pix/2-pix*19/76+Name_Text.get_width()
 Name_Rect_y = pix/2-pix/7.6
 Word_Rect_y = pix/2-pix/30.4
 
-login_window()
+choose_color = (255, 70, 0)
 
-SCREEN_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(SCREEN_UPDATE, 150)
+login_window()
 
 game_window = GAME_WINDOW()
 game_window.main_game.fruit.reset_fruit_time = 0
 
+SCREEN_UPDATE = pygame.USEREVENT
+pygame.time.set_timer(SCREEN_UPDATE, 150)
+
+if game_window.main_game.fast:
+    pygame.time.set_timer(SCREEN_UPDATE, 90)
+
 pause = 1
+update = False
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
-        if not game_window.main_game.fast:
-            if event.type == SCREEN_UPDATE:
-                game_window.main_game.update()
+        if event.type == SCREEN_UPDATE:
+            game_window.main_game.update()
+            update = True
 
         if event.type == pygame.KEYDOWN:
-            if (event.key == pygame.K_w or event.key == pygame.K_UP) and game_window.main_game.snake.direction.y != 1:
+            if update and (event.key == pygame.K_w or event.key == pygame.K_UP) and game_window.main_game.snake.direction.y != 1:
                 game_window.main_game.snake.direction = Vector2(0, -1)
-            elif (event.key == pygame.K_s or event.key == pygame.K_DOWN) and game_window.main_game.snake.direction.y != -1:
+                update = False
+            elif update and (event.key == pygame.K_s or event.key == pygame.K_DOWN) and game_window.main_game.snake.direction.y != -1:
                 game_window.main_game.snake.direction = Vector2(0, 1)
-            elif (event.key == pygame.K_a or event.key == pygame.K_LEFT) and game_window.main_game.snake.direction.x != 1:
+                update = False
+            elif update and (event.key == pygame.K_a or event.key == pygame.K_LEFT) and game_window.main_game.snake.direction.x != 1:
                 game_window.main_game.snake.direction = Vector2(-1, 0)
-            elif (event.key == pygame.K_d or event.key == pygame.K_RIGHT) and game_window.main_game.snake.direction.x != -1:
+                update = False
+            elif update and (event.key == pygame.K_d or event.key == pygame.K_RIGHT) and game_window.main_game.snake.direction.x != -1:
                 game_window.main_game.snake.direction = Vector2(1, 0)
+                update = False
             elif event.key == pygame.K_k:
                 game_window.main_game.game_over()
             elif event.key == pygame.K_r:
                 game_window.main_game.snake.reset()
             elif event.key == pygame.K_p:
                 pause = 0 - pause
+                if pause == 1:
+                    pygame.mixer.music.unpause()
+                else:
+                    pygame.mixer.music.pause()
 
     if pause == 1:
         game_window.main_game.draw_elements()
 
         if game_window.main_game.fast:
-            clock.tick(12)
-            game_window.main_game.update()
+            clock.tick(60)
 
         if not game_window.main_game.fast:
             clock.tick(60)
