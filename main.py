@@ -315,10 +315,10 @@ class SNAKE:
         self.reset()
         self.crunch_sound = pygame.mixer.Sound('assets/sound/贪知蛇吃食物.wav')
         
-        self.head_image = pygame.transform.smoothscale(pygame.image.load('assets/image/头.png').convert_alpha(), (size, size))
-        self.body_image = pygame.transform.smoothscale(pygame.image.load('assets/image/身体.png').convert_alpha(), (size, size))
-        self.tail_image = pygame.transform.smoothscale(pygame.image.load('assets/image/尾巴.png').convert_alpha(), (size, size))
-        self.convert_image = pygame.transform.smoothscale(pygame.image.load('assets/image/转接处.png').convert_alpha(), (size, size))
+        self.head_image = pygame.transform.smoothscale(pygame.image.load('assets/image/head.png').convert_alpha(), (size, size))
+        self.body_image = pygame.transform.smoothscale(pygame.image.load('assets/image/body.png').convert_alpha(), (size, size))
+        self.tail_image = pygame.transform.smoothscale(pygame.image.load('assets/image/tail.png').convert_alpha(), (size, size))
+        self.convert_image = pygame.transform.smoothscale(pygame.image.load('assets/image/transfer.png').convert_alpha(), (size, size))
     
     def draw_snake(self):
         self.update_head()
@@ -356,47 +356,55 @@ class SNAKE:
 
                     elif last_block.x == 1 and next_block.y == -1 or last_block.y == -1 and next_block.x == 1:
                         screen.blit(pygame.transform.rotate(self.convert_image, 180), self.block_rect)
-
-    
+ 
     def update_head(self):
-        self.head_location = self.body[1] - self.body[0]
-        if self.head_location == Vector2(1, 0):
-            self.head = pygame.transform.rotate(self.head_image, 90)
+        global pause
 
-        elif self.head_location == Vector2(-1, 0):
-            self.head = pygame.transform.rotate(self.head_image, -90)
+        if pause == 1:
+            self.head_location = self.body[1] - self.body[0]
+            if self.head_location == Vector2(1, 0):
+                self.head = pygame.transform.rotate(self.head_image, 90)
 
-        elif self.head_location == Vector2(0, 1):
-            self.head = self.head_image
-            
-        elif self.head_location == Vector2(0, -1):
-            self.head = pygame.transform.rotate(self.head_image, 180)
+            elif self.head_location == Vector2(-1, 0):
+                self.head = pygame.transform.rotate(self.head_image, -90)
+
+            elif self.head_location == Vector2(0, 1):
+                self.head = self.head_image
+                
+            elif self.head_location == Vector2(0, -1):
+                self.head = pygame.transform.rotate(self.head_image, 180)
             
     def update_tail(self):
-        self.tail_location = self.body[-2] - self.body[-1]
-        if self.tail_location == Vector2(1, 0):
-            self.tail = pygame.transform.rotate(self.tail_image, 90)
+        global pause
 
-        elif self.tail_location == Vector2(-1, 0):
-            self.tail = pygame.transform.rotate(self.tail_image, -90)
+        if pause == 1:
+            self.tail_location = self.body[-2] - self.body[-1]
+            if self.tail_location == Vector2(1, 0):
+                self.tail = pygame.transform.rotate(self.tail_image, 90)
 
-        elif self.tail_location == Vector2(0, 1):
-            self.tail = self.tail_image
+            elif self.tail_location == Vector2(-1, 0):
+                self.tail = pygame.transform.rotate(self.tail_image, -90)
 
-        elif self.tail_location == Vector2(0, -1):
-            self.tail = pygame.transform.rotate(self.tail_image, -180)
+            elif self.tail_location == Vector2(0, 1):
+                self.tail = self.tail_image
+
+            elif self.tail_location == Vector2(0, -1):
+                self.tail = pygame.transform.rotate(self.tail_image, -180)
             
     def move_snake(self):
-        if self.new_block:
-            body_copy = self.body[:]
-            body_copy.insert(0, body_copy[0]+self.direction)
-            self.body = body_copy[:]
-            self.new_block = False
+        global pause
 
-        else:
-            body_copy = self.body[:-1]
-            body_copy.insert(0, body_copy[0]+self.direction)
-            self.body = body_copy[:]
+        if pause == 1:
+            if self.new_block:
+                body_copy = self.body[:]
+                body_copy.insert(0, body_copy[0]+self.direction)
+                self.body = body_copy[:]
+                self.new_block = False
+
+            else:
+                body_copy = self.body[:-1]
+                body_copy.insert(0, body_copy[0]+self.direction)
+                self.body = body_copy[:]
         
     def add_block(self):
         self.new_block = True
@@ -432,6 +440,7 @@ class FRUIT:
         
     def reset_fruit_place(self):
         global fruit_place_lis
+
         while True:
             if self.teach:
                 while True:
@@ -498,7 +507,7 @@ class MAIN:
             fruit_place_lis = [self.fruit.pos, self.second_fruit.pos, self.third_fruit.pos]
 
         self.over_music = pygame.mixer.Sound('assets/sound/贪知蛇死亡.wav')
-        self.play_bgm()
+        bgm.play(-1)
 
         self.move_snake = 1
         self.die = False
@@ -519,16 +528,19 @@ class MAIN:
             self.create_topic()
         
     def update(self):
-        self.snake.move_snake()
+        global pause
 
-        if self.fast:
-            if self.move_snake == 2:
-                self.snake.move_snake()
-                self.move_snake = 1
+        if pause == 1:
+            self.snake.move_snake()
 
-        self.check_place()
-        self.check_die()
-        
+            if self.fast:
+                if self.move_snake == 2:
+                    self.snake.move_snake()
+                    self.move_snake = 1
+
+            self.check_place()
+            self.check_die()
+            
     def draw_elements(self):
         screen.fill((167, 209, 61))
         self.draw_grass()
@@ -799,9 +811,6 @@ class MAIN:
             
         screen.blit(self.topic_text, ((pix-self.topic_text.get_width())/2, 
                                       (pix-self.topic_text.get_height())/5))
-                
-    def play_bgm(self):
-        bgm.play(-1)
 
     def draw_score(self):
         self.score = len(self.snake.body)-3
@@ -1328,19 +1337,21 @@ class GAME_WINDOW:
                                             if self.shut_down:
                                                 self.shut_down = False
                                                 break
-                                                
                                             pygame.display.update()
+
                                     elif self.choose_index == 1: # change password
                                         bgm.stop()
                                         again = login_window(again=True)
                                         if again != 0:
                                             bgm.stop()
                                             login_window(change=True)
+
                                     elif self.choose_index == 2: # change user
                                         bgm.stop()
                                         login_window()
                                         self.title_text = chinese_title_font.render(username, True, (0, 0, 0))
                                         max_score = dict(zip(mode_lis, [0 for i in range(len(mode_lis))]))
+                                        
                                     else: # cancel
                                         self.choose_index = 5
                                         break
@@ -1368,8 +1379,6 @@ class GAME_WINDOW:
 
             for i in range(len(assets.ranking.score_dic[f'{self.mode}_score_lis'])):
                 assets.ranking.player_dic[f'{self.mode}_player_lis'][i] = dic[assets.ranking.score_dic[f'{self.mode}_score_lis'][i]]
-
-
 
 pygame.mixer.init()
 pygame.init()
@@ -1437,7 +1446,7 @@ pygame.time.set_timer(SCREEN_UPDATE, 150)
 game_window = GAME_WINDOW()
 game_window.main_game.fruit.reset_fruit_time = 0
 
-update = False
+pause = 1
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -1447,34 +1456,34 @@ while True:
         if not game_window.main_game.fast:
             if event.type == SCREEN_UPDATE:
                 game_window.main_game.update()
-                update = True
 
         if event.type == pygame.KEYDOWN:
-            if update and (event.key == pygame.K_w or event.key == pygame.K_UP) and game_window.main_game.snake.direction.y != 1:
+            if (event.key == pygame.K_w or event.key == pygame.K_UP) and game_window.main_game.snake.direction.y != 1:
                 game_window.main_game.snake.direction = Vector2(0, -1)
-                update = False
-            elif update and (event.key == pygame.K_s or event.key == pygame.K_DOWN) and game_window.main_game.snake.direction.y != -1:
+            elif (event.key == pygame.K_s or event.key == pygame.K_DOWN) and game_window.main_game.snake.direction.y != -1:
                 game_window.main_game.snake.direction = Vector2(0, 1)
-                update = False
-            elif update and (event.key == pygame.K_a or event.key == pygame.K_LEFT) and game_window.main_game.snake.direction.x != 1:
+            elif (event.key == pygame.K_a or event.key == pygame.K_LEFT) and game_window.main_game.snake.direction.x != 1:
                 game_window.main_game.snake.direction = Vector2(-1, 0)
-                update = False
-            elif update and (event.key == pygame.K_d or event.key == pygame.K_RIGHT) and game_window.main_game.snake.direction.x != -1:
+            elif (event.key == pygame.K_d or event.key == pygame.K_RIGHT) and game_window.main_game.snake.direction.x != -1:
                 game_window.main_game.snake.direction = Vector2(1, 0)
-                update = False
+            elif event.key == pygame.K_k:
+                game_window.main_game.game_over()
             elif event.key == pygame.K_r:
                 game_window.main_game.snake.reset()
+            elif event.key == pygame.K_p:
+                pause = 0 - pause
 
-    game_window.main_game.draw_elements()
+    if pause == 1:
+        game_window.main_game.draw_elements()
 
-    if game_window.main_game.fast:
-        clock.tick(12)
-        game_window.main_game.update()
+        if game_window.main_game.fast:
+            clock.tick(12)
+            game_window.main_game.update()
 
-    if not game_window.main_game.fast:
-        clock.tick(60)
+        if not game_window.main_game.fast:
+            clock.tick(60)
 
-    if game_window.main_game.fruit.reset_fruit:
-        if game_window.main_game.fruit.reset_fruit_time == 300:
-            game_window.main_game.fruit.reset_fruit_place()
-        game_window.main_game.fruit.reset_fruit_time += 1
+        if game_window.main_game.fruit.reset_fruit:
+            if game_window.main_game.fruit.reset_fruit_time == 300:
+                game_window.main_game.fruit.reset_fruit_place()
+            game_window.main_game.fruit.reset_fruit_time += 1
