@@ -704,7 +704,7 @@ class MAIN:
 
     def create_wiki_topic(self):
         global answer_lis
-        self.wiki_num = random.randint(0, len(assets.topic.wiki_topic_lis))
+        self.wiki_num = random.randint(1, len(assets.topic.wiki_topic_lis))
         answer_lis = assets.answer.wiki_answer_lis[self.wiki_num*3-3:self.wiki_num*3]
         self.topic = assets.topic.wiki_topic_lis[self.wiki_num-1]
         self.two_lines = False
