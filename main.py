@@ -1365,6 +1365,10 @@ class GAME_WINDOW:
 
             elif self.shut_down:
                 break
+        
+        pygame.time.set_timer(SCREEN_UPDATE, 150)
+        if self.fast:
+            pygame.time.set_timer(SCREEN_UPDATE, 90)
 
         pygame.mixer.music.stop()
         self.main_game = MAIN(fast=self.fast, reset_fruit=self.reset_fruit, 
@@ -1445,14 +1449,10 @@ choose_color = (255, 70, 0)
 
 login_window()
 
+SCREEN_UPDATE = pygame.USEREVENT
+
 game_window = GAME_WINDOW()
 game_window.main_game.fruit.reset_fruit_time = 0
-
-SCREEN_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(SCREEN_UPDATE, 150)
-
-if game_window.main_game.fast:
-    pygame.time.set_timer(SCREEN_UPDATE, 90)
 
 pause = 1
 update = False
