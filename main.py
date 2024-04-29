@@ -410,19 +410,16 @@ class SNAKE:
                 self.tail = pygame.transform.rotate(self.tail_image, -180)
             
     def move_snake(self):
-        global pause
+        if self.new_block:
+            body_copy = self.body[:]
+            body_copy.insert(0, body_copy[0]+self.direction)
+            self.body = body_copy[:]
+            self.new_block = False
 
-        if pause == 1:
-            if self.new_block:
-                body_copy = self.body[:]
-                body_copy.insert(0, body_copy[0]+self.direction)
-                self.body = body_copy[:]
-                self.new_block = False
-
-            else:
-                body_copy = self.body[:-1]
-                body_copy.insert(0, body_copy[0]+self.direction)
-                self.body = body_copy[:]
+        else:
+            body_copy = self.body[:-1]
+            body_copy.insert(0, body_copy[0]+self.direction)
+            self.body = body_copy[:]
         
     def add_block(self):
         self.new_block = True
@@ -481,21 +478,16 @@ class FRUIT:
                         for i in range(-1, 2):
                             lis.append([block[0] + j, block[1] + i])
 
-                if Vector2(self.pos.x/size, self.pos.y/size) not in lis:
-                    break
-                else:
-                    continue
-
             except NameError:
                 for block in self.snake_body:
                     for j in range(-1, 2):
                         for i in range(-1, 2):
                             lis.append([block[0] + j, block[1] + i])
 
-                if Vector2(self.pos.x/size, self.pos.y/size) not in lis:
-                    break
-                else:
-                    continue
+            if Vector2(self.pos.x/size, self.pos.y/size) not in lis:
+                break
+            else:
+                continue
 
         if self.reset_fruit:
             self.reset_fruit_time = 0
@@ -579,19 +571,17 @@ class MAIN:
             self.snake.add_block()
             if self.all_oper and self.wiki:
                 if random.randint(0,  1):
-                    self.reset_wrong_fruit()
                     self.create_topic()
                 else:
-                    self.reset_wrong_fruit()
                     self.create_wiki_topic()
+                self.reset_wrong_fruit()
 
-            else:
+            elif self.teach or self.wiki:
                 if self.teach:
-                    self.reset_wrong_fruit()
                     self.create_topic()
-                if self.wiki:
-                    self.reset_wrong_fruit()
+                elif self.wiki:
                     self.create_wiki_topic()
+                self.reset_wrong_fruit()
 
         if self.teach:
             if self.second_fruit.pos/size == self.snake.body[0]:
@@ -830,11 +820,11 @@ class MAIN:
 
     def draw_score(self):
         self.score = len(self.snake.body)-3
-        score_surface = english_font.render(str(self.score), True, (56, 74, 21))
-        score_rect = score_surface.get_rect(center=(int(pix - 35), int(pix - 25)))
+        score_text = english_font.render(str(self.score), True, (56, 74, 21))
+        score_rect = score_text.get_rect(center=(int(pix - 35), int(pix - 25)))
         apple_rect = apple.get_rect(midright=(score_rect.left, score_rect.centery))
         screen.blit(apple, apple_rect)
-        screen.blit(score_surface, score_rect)
+        screen.blit(score_text, score_rect)
 
 class GAME_WINDOW:
     def __init__(self):
@@ -1446,10 +1436,9 @@ Name_Rect_y = pix/2-pix/7.6
 Word_Rect_y = pix/2-pix/30.4
 
 choose_color = (255, 70, 0)
+SCREEN_UPDATE = pygame.USEREVENT
 
 login_window()
-
-SCREEN_UPDATE = pygame.USEREVENT
 
 game_window = GAME_WINDOW()
 game_window.main_game.fruit.reset_fruit_time = 0
